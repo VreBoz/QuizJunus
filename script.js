@@ -81,65 +81,97 @@ let questions = [
 },
 ];
 
+let rightQuestions = 0
 let currentQuestion = 0;
+let audio_success = new Audio('sounds/yooo.mp3');
+let audio_fail = new Audio('sounds/nani.mp3');
 
+// Funktion zum Initialisieren des Quiz
 function init() {
-    document.getElementById('allQuests').innerHTML = questions.length;
-    showQuestion();
-}
-
-function showQuestion() {
+    document.getElementById('allQuests').innerHTML = questions.length; // Anzeige der Gesamtzahl der Fragen
+    showQuestion(); // Anzeige der ersten Frage
+  }
+  
+  // Funktion zum Anzeigen der aktuellen Frage
+  function showQuestion() {
     let question = questions[currentQuestion];
-
+  
     if (currentQuestion >= questions.length) {
-        document.getElementById('endScreen').style = '';
-        document.getElementById('questionBody').style = 'display: none'
-
-        document.getElementById('amount-of-questions').innerHTML = questions.length;
+      // Wenn alle Fragen beantwortet wurden, wird der Endbildschirm angezeigt
+      // Show end screen
+      document.getElementById('endScreen').style = '';
+      document.getElementById('questionBody').style = 'display: none';
+      document.getElementById('progress-bar').innerHTML = `100%`
+      document.getElementById('progress-bar').style.width = `100%`
+  
+      // Anzeige der Anzahl der Fragen und der richtig beantworteten Fragen
+      document.getElementById('amount-of-questions').innerHTML = questions.length;
+      document.getElementById('amount-of-right-questions').innerHTML = rightQuestions;
+      document.getElementById('headerImage').src = './img/thumbUp.jpg';
     } else {
+        // show question
+      // Anzeige der aktuellen Frage und der möglichen Antworten
+      let percent = currentQuestion / questions.length ;
+      percent = percent * 100;
+      document.getElementById('progress-bar').innerHTML = `${percent}%`
+      document.getElementById('progress-bar').style.width = `${percent}%`
+      console.log('Fortschrit', percent)
 
-        document.getElementById('question-number').innerHTML = currentQuestion + 1;
-        document.getElementById('questionText').innerHTML = question["question"]
-        document.getElementById('answer_1').innerHTML = question["answer_1"]
-        document.getElementById('answer_2').innerHTML = question["answer_2"]
-        document.getElementById('answer_3').innerHTML = question["answer_3"]
-        document.getElementById('answer_4').innerHTML = question["answer_4"]
+      document.getElementById('question-number').innerHTML = currentQuestion + 1;
+      document.getElementById('questionText').innerHTML = question["question"];
+      document.getElementById('answer_1').innerHTML = question["answer_1"];
+      document.getElementById('answer_2').innerHTML = question["answer_2"];
+      document.getElementById('answer_3').innerHTML = question["answer_3"];
+      document.getElementById('answer_4').innerHTML = question["answer_4"];
     }
-}
+  };
 
-function answer(selection) {
-    let question = questions[currentQuestion];
-    let selectedQuestionNumber = selection.slice(-1);
-    let idOfRightAnswer = `answer_${question["right_answer"]}`;
-
-    if (selectedQuestionNumber == question["right_answer"]) {
-        console.log('Richtige Antwort!')
-        document.getElementById(selection).parentNode.classList.add('bg-success')
+  function answer(selection) {
+    let question = questions[currentQuestion]; // Aktuelle Frage abrufen
+    let selectedQuestionNumber = selection.slice(-1); // Ausgewählte Antwortnummer ermitteln
+    let idOfRightAnswer = `answer_${question["right_answer"]}`; // ID der richtigen Antwort ermitteln
+  
+    if (selectedQuestionNumber == question["right_answer"]) { // Richtige Frage beantwortet
+      // Wenn die ausgewählte Antwortnummer mit der richtigen Antwort übereinstimmt
+      audio_success.play();
+      document.getElementById(selection).parentNode.classList.add('bg-success'); // Hinzufügen der CSS-Klasse für grüne Hervorhebung
+      rightQuestions++; // Zähle die richtigen Antworten hoch
     } else {
-        console.log('Falsche Antwort')
-        document.getElementById(selection).parentNode.classList.add('bg-danger')
-        document.getElementById(idOfRightAnswer).parentNode.classList.add('bg-success')
-    };
-    document.getElementById('next-button').disabled = false;
-}
-
-function nextQuestion() {
-    currentQuestion ++; // erhöhungvon 0 auf 1.
-    document.getElementById('next-button').disabled = true;
-    resetAnswerButtons();
-    showQuestion();
-}
-
-function resetAnswerButtons() {
+      document.getElementById(selection).parentNode.classList.add('bg-danger'); // Hinzufügen der CSS-Klasse für rote Hervorhebung bei falscher Antwort
+      document.getElementById(idOfRightAnswer).parentNode.classList.add('bg-success'); // Hinzufügen der CSS-Klasse für grüne Hervorhebung bei richtiger Antwort
+      audio_fail.play();
+    }
+  
+    document.getElementById('next-button').disabled = false; // Aktiviere den Weiter-Button
+  }
+  
+  function nextQuestion() {
+    currentQuestion++; // Erhöhe den Zähler für die aktuelle Frage, um zur nächsten Frage zu gelangen
+    document.getElementById('next-button').disabled = true; // Deaktiviere den Weiter-Button
+    resetAnswerButtons(); // Setze die Hervorhebungen der Antwortbuttons zurück
+    showQuestion(); // Zeige die nächste Frage an
+  }
+  
+  function resetAnswerButtons() {
+    // Entferne die CSS-Klassen für Hervorhebungen bei den Antwortbuttons
     document.getElementById('answer_1').parentNode.classList.remove('bg-danger');
     document.getElementById('answer_1').parentNode.classList.remove('bg-success');
-
+  
     document.getElementById('answer_2').parentNode.classList.remove('bg-danger');
     document.getElementById('answer_2').parentNode.classList.remove('bg-success');
-
+  
     document.getElementById('answer_3').parentNode.classList.remove('bg-danger');
     document.getElementById('answer_3').parentNode.classList.remove('bg-success');
-
+  
     document.getElementById('answer_4').parentNode.classList.remove('bg-danger');
     document.getElementById('answer_4').parentNode.classList.remove('bg-success');
-}
+  }
+
+  function restartGame(){
+    document.getElementById('headerImage').src = './img/anime.jpg';
+    document.getElementById('questionBody').style = '';
+    document.getElementById('endScreen').style = 'display: none'; // Endscreen ausblenden
+    rightQuestions = 0;
+    currentQuestion = 0;
+    init();
+  }
